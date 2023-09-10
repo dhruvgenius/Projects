@@ -1,92 +1,65 @@
-// Dhruv Gupta
-// CPSC 1020
-// 02/21/2023
-// This program will contain the main function and have the actual game.
-#include <iostream>
-#include <fstream>
+#include "Card.h"
+#include "Deck.h"
+#include "Hand.h"
+#include "Player.h"
 #include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <algorithm>
-#include <string>
-#include "Quiz.h"
-#include "printResult.h"
+#include <iostream>
+using namespace std;
 
-int main(int argc, char *argv[])
-{
-    // Set variables to 0
-    int questions = 0;
-    int correct = 0;
-    int wrong = 0;
-    // Random function time assignment
-    srand(unsigned(time(0)));
-    // Create vector and strings for question and answer
-    std::vector<Quiz> quizVector;
-    std::string q, a;
-    std::ifstream file(argv[1]);
-    // Get the file
-    if (file.is_open())
+int main() {
+
+  // 1. Create a deck of cards and shuffle it.
+  Deck deckOfCards;
+  deckOfCards.shuffle();
+  // 2. Create two players, each one with 5 cards in their hand.
+  Player computerHand(deckOfCards, 5);
+  Player humanHand(deckOfCards, 5);
+  // 3. Play five rounds. In each round:
+  //    - Have computer deal a card from their hand.
+  //    - Show human their hand of cards so that they can make a selection.
+  //    - Have human deal their card. 
+  //    - Determine who won the round and update points accordingly.
+  //    - Print results for current round.
+  int humanScore = 0;
+  int computerScore = 0;
+  for (int i = 1; i <= 5; i++)
+  {
+    Card tempCard = computerHand.hand.dealCard(1);
+    cout << "The computer plays: " << tempCard.printCard() << endl;
+    cout << "Your hand: " << humanHand.hand.printHand() << endl;
+    int choice;
+    cout << "Which card do you want to play? " << endl;
+    cin >> choice;
+    Card playercard = humanHand.hand.dealCard(choice);
+    cout << "You played: " << playercard.printCard() << endl;
+    if (tempCard.getValue() < playercard.getValue())
     {
-        while (getline(file, q) && getline(file, a))
-        {
-            // Remove first three characters
-            q.erase(0, 3);
-            a.erase(0, 3);
-            Quiz Quiz(q, a);
-            quizVector.push_back(Quiz);
-        }
-        file.close();
-    }
-    else 
+      cout << "You win this round!" << endl << endl;
+      humanScore = humanScore + tempCard.getValue() + playercard.getValue();
+    } else if (tempCard.getValue() > playercard.getValue())
     {
-        std::cout << "Unable to open file" << std::endl;
-    }
-    // Randomly shuffle questions for quiz
-    std::random_shuffle (quizVector.begin(), quizVector.end());
-    int userScore = 0;
-    // For loop for the quiz
-    for (std::vector<Quiz>::size_type i = 0; i < quizVector.size(); i++)
+      cout << "The computer wins this round!" << endl << endl;
+      computerScore = computerScore + tempCard.getValue() + playercard.getValue();
+    } else
     {
-        Quiz playerQuiz = quizVector[i];
-        // Get the question for the quiz
-        std::cout << playerQuiz.getQuestion() << std::endl;
-        std::string answer;
-        // Prompt user for answer
-        std::cout << "Type in your answer: ";
-        getline(std::cin, answer);
-        std::string correctAnswer = playerQuiz.getAnswer();
-        answer.erase(remove_if(answer.begin(), answer.end(), ::isspace), answer.end());
-        correctAnswer.erase(remove_if(correctAnswer.begin(), correctAnswer.end(), ::isspace), correctAnswer.end());
-        // If statement for validating correct answer
-        if (answer == correctAnswer)
-        {
-            userScore = Quiz::getScore();
-            std::cout << "Correct!" << std::endl;
-            // Increment correct by 1
-            correct++;
-            // Increment number of questions by 1
-            questions++;
-            // Update score by 1 for correct answer
-            Quiz::updateScore(1);
-            // Print out current score
-            std::cout << "Current score: " << playerQuiz.getScore() << std::endl;
-        } else
-        {
-            userScore = Quiz::getScore();
-            // If answer is not equal to answer in file, tell user answer is wrong and display the correct answer
-            std::cout << "Wrong! Correct answer: " << playerQuiz.getAnswer() << std::endl;
-            // Increment wrong by 1
-            wrong++;
-            // Increment number of questions by 1
-            questions++;
-            // Decrease score by 1
-            Quiz::updateScore(-1);
-            // Display score to user
-            std::cout << "Current score: " << userScore << std::endl;
-        }
+      cout << "Tie!" << endl;
     }
-    // Call the printResult function
-    std::cout << printResult(questions, correct, wrong) << std::endl;
-    std::cout << "Final score: " << userScore;
-    return 0;
+    cout << "Current scores:" << endl;
+    cout << "Human: " << humanScore << endl;
+    cout << "Computer: " << computerScore << endl;
+  }
+  // 4. Print final game results.  
+  cout << "FINAL SCORE: " << endl;
+  cout << "Human: " << humanScore << endl;
+  cout << "Computer: " << computerScore << endl;
+  if (humanScore < computerScore)
+  {
+    cout << "Computer has won!";
+  } else if (computerScore < humanScore)
+  {
+    cout << "Human has won!";
+  }
+
+  
+  return 0;
 }

@@ -1,8 +1,14 @@
-main: main.cpp Quiz.cpp printResult.cpp
-	g++ -Wall -o main.out main.cpp Quiz.cpp printResult.cpp
+CXX = g++
+OPTIONS = -Wall -std=c++11
+PROGRAM = main.out
 
-run: main
-	./main.out database.txt
+all: $(PROGRAM)
+
+run: $(PROGRAM)
+	./$(PROGRAM)
+
+$(PROGRAM): main.cpp Card.cpp Deck.cpp Hand.cpp
+	$(CXX) $(OPTIONS) main.cpp Card.cpp Deck.cpp Hand.cpp -o $(PROGRAM) 
 
 clean:
-	rm main.out
+	rm -f $(PROGRAM)
